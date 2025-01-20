@@ -1,18 +1,17 @@
 "use client";
 import React, { useState } from "react";
-import TableNa from "@/components/TableNa";
-
 import { useDate } from "@/context/DateContext";
 import ModalDate from "@/components/dateForm/ModalDate";
 import NewTable2 from "@/components/NewTable2";
+
 
 export default function AgendarPage() {
   const { data, handleDelete } = useDate();
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  const del = async (id: number) => {
+  const del = async (id: string) => {
     
-    await handleDelete(id);
+    await handleDelete(Number(id) );
   }
 
   const edit = async (data: any) => {

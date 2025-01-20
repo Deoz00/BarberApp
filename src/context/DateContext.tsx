@@ -17,6 +17,7 @@ interface Data {
   comentarios: string | null;
 }
 
+
 import { getCitas, deleteCita,editCita, createCita} from "@/services/citasService";
 import { getUsuarioRol } from "@/services/usuariosService";
 
@@ -27,6 +28,7 @@ type User = {
   id: string;
   citasEmpleado: string[];
 };
+
 
 interface DateContextType {
   data: Data[]; // Array de datos

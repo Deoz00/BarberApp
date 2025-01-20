@@ -22,11 +22,11 @@ export default function Register({ setLogin }:LoginProps ) {
   const toggleVisibility = () => setIsVisible(!isVisible);
   const router = useRouter();
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
    // setIsLoading(true);
 
-    const formData = new FormData(event.target);
+    const formData = new FormData(event.target as HTMLFormElement);
     const data = Object.fromEntries(formData.entries());
 
      try {

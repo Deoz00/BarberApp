@@ -455,7 +455,7 @@ const INITIAL_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
 //type User = (typeof users)[0];
 
 interface Data {
-  Id: number;
+  id: number;
   cliente: string;
   empleado: string;
   fechaCita: string;
@@ -473,7 +473,7 @@ interface User {
 interface props {
   users: Data[] | User[];
   edit: (id: User | Data) => void;
-  eliminar: (id: string | number) => void;
+  eliminar: (id: string) => void;
   addFunction: () => void;
 }
 
@@ -499,13 +499,20 @@ export default function NewTable2({ users, eliminar, edit, addFunction }: props)
     let filteredUsers = [...users];
 
     if (hasSearchFilter) {
-      filteredUsers = filteredUsers.filter((user) =>
-        user.name.toLowerCase().includes(filterValue.toLowerCase())
-      );
+      filteredUsers = filteredUsers.filter((user) => {
+        if (isUser(user)) {
+          return user.name.toLowerCase().includes(filterValue.toLowerCase());
+        }
+        return false; // Si no es un `User`, no lo incluimos
+      });
     }
 
     return filteredUsers;
   }, [users, filterValue]);
+
+  function isUser(user: User | Data): user is User {
+    return (user as User).name !== undefined;
+  }
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -517,17 +524,24 @@ export default function NewTable2({ users, eliminar, edit, addFunction }: props)
   }, [page, filteredItems, rowsPerPage]);
 
   const sortedItems = React.useMemo(() => {
-    return [...items].sort((a: User, b: User) => {
-      const first = a[sortDescriptor.column as keyof User] as number;
-      const second = b[sortDescriptor.column as keyof User] as number;
+    return [...items].sort((a: Data | User, b: Data | User) => {
+      const first = a[sortDescriptor.column as keyof (Data | User)] as number;
+      const second = b[sortDescriptor.column as keyof (Data | User)] as number;
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
 
-  const renderCell = React.useCallback((user: User, columnKey: React.Key) => {
-    const cellValue = user[columnKey as keyof User];
+  const renderCell = React.useCallback((user: User | Data, columnKey: React.Key) => {
+    let cellValue;
+
+    if (isUser(user)) {
+      cellValue = user[columnKey as keyof User];
+    } else {
+      cellValue = user[columnKey as keyof Data];
+    }
+    
 
     switch (columnKey) {
       case "name":
@@ -535,18 +549,24 @@ export default function NewTable2({ users, eliminar, edit, addFunction }: props)
       case "role":
         return <p className="text-bold text-small capitalize">{cellValue}</p>;
       case "fechaCita":
-        return new Date(cellValue).toLocaleString();
+        return cellValue 
+        ? new Date(cellValue).toLocaleString() 
+        : "Fecha no disponible";
       case "status":
-        return (
-          <Chip
-            className="capitalize"
-            color={statusColorMap[user.status]}
-            size="sm"
-            variant="flat"
-          >
-            {cellValue}
-          </Chip>
-        );
+        if (!isUser(user)) {
+          return (
+            <Chip
+              className="capitalize"
+              color={statusColorMap[user.estado]}
+              size="sm"
+              variant="flat"
+            >
+              {cellValue}
+            </Chip>
+          );
+          
+        }
+       
       case "actions":
         return (
           <div className="relative flex items-center gap-4">
@@ -562,7 +582,13 @@ export default function NewTable2({ users, eliminar, edit, addFunction }: props)
             <Tooltip color="danger" content="Delete">
               <span
                 className="text-lg text-danger cursor-pointer active:opacity-50"
-                onClick={() => eliminar(user.id)}
+                onClick={() => {
+                  if (typeof user.id === "string") {
+                    eliminar(user.id); // Caso id es string
+                  } else {
+                    eliminar(user.id.toString()); // Caso id es number
+                  }
+                }}
               >
                 <DeleteIcon />
               </span>
@@ -729,17 +755,18 @@ export default function NewTable2({ users, eliminar, edit, addFunction }: props)
       onSortChange={setSortDescriptor}
     >
       <TableHeader>
-        {users.length > 0
-          ? Object.keys(users[0])
-              .filter((columnKey) => columnKey !== "id")
-              .map((columnKey) => (
-                <TableColumn key={columnKey} allowsSorting={true}>
-                  {columnKey}
-                </TableColumn>
-              ))
-          : []}
-
-        {users.length > 0 ? <TableColumn key="actions">Actions</TableColumn>:[]}
+      {users.length > 0
+  ? [
+      ...Object.keys(users[0])
+        .filter((columnKey) => columnKey !== "id")
+        .map((columnKey) => (
+          <TableColumn key={columnKey} allowsSorting={true}>
+            {columnKey}
+          </TableColumn>
+        )),
+      <TableColumn key="actions">Actions</TableColumn>,
+    ]
+  : []}
       </TableHeader>
       <TableBody emptyContent={"No users found"} items={sortedItems}>
         {(item) => (

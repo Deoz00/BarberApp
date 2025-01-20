@@ -161,7 +161,7 @@ const BasicNavbar = React.forwardRef<HTMLElement, NavbarProps>(
           </NavbarMenuItem>
           {menuItems.map((item, index) => (
             <NavbarMenuItem key={`${item}-${index}`}>
-              <Link className="mb-2 w-full text-default-500" href="#" size="md">
+              <Link className="mb-2 w-full text-default-500" href="#">
                 {item}
               </Link>
               {index < menuItems.length - 1 && <Divider className="opacity-50" />}

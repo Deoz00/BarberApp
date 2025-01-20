@@ -10,7 +10,7 @@ import FadeInImage from "@/components/FadeInImage";
 import FormDate from "./FormDate";
 import React, { useEffect, useState } from "react";
 
-export const PlusIcon = ({ size = 24, width, height, ...props }) => {
+export const PlusIcon = ({ size = 24, width, height, ...props }: { size?: number, width?: number, height?: number, [key: string]: any }) => {
   return (
     <svg
       aria-hidden="true"
@@ -36,7 +36,7 @@ export const PlusIcon = ({ size = 24, width, height, ...props }) => {
   );
 };
 
-export default function ModalDate({ tipo, setSelectedId }: { tipo: number | null,setSelectedId: React.Dispatch<React.SetStateAction<number | null>>;
+export default function ModalDate({ tipo, setSelectedId }: { tipo: number,setSelectedId: React.Dispatch<React.SetStateAction<number | null>>;
 }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [openTriggered, setOpenTriggered] = useState(false);

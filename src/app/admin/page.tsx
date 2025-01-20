@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import NewTable from "@/components/NewTable";
 import NewTable2 from "@/components/NewTable2";
 
 //import { useDate } from "@/context/DateContext";
@@ -20,6 +19,16 @@ interface User {
     role: string;
   }
 
+  interface Data {
+    id: number;
+    cliente: string;
+    empleado: string;
+    fechaCita: string;
+    estado: string;
+    comentarios: string | null;
+  }
+  
+
 export default function AdminPage() {
 
 
@@ -36,21 +45,28 @@ useEffect(() => {
 
 
  // const { data, handleDelete } = useDate();
-  const [selectedUser, setSelectedUser] = useState<User | null | number>(null);
+  const [selectedUser, setSelectedUser] = useState<User>({id: "-1", name: "", userName: "", role: ""});
   const [users, setUsers] = useState<User[]>([]);
 
 
   const del = async (id: string) => {
-    
+   
+    console.log(id);  
     await deleteUser(id);
+    
     fetch();
   }
 
-  const edit = async (id: User) => {
-    setSelectedUser(id);
+  const edit = async (id: User | Data) => {
+    if ("id" in id && "name" in id && "userName" in id && "role" in id) {
+      // Es un User
+      setSelectedUser(id);
+    } else {
+      //console.error("El objeto no es un User válido");
+    }
   }
   const addFunction = async () => {
-    setSelectedUser(-1);
+    setSelectedUser({id: "", name: "", userName: "", role: ""});	
 
   }
 
@@ -76,7 +92,7 @@ useEffect(() => {
         { <NewTable2 users={users} eliminar={del} edit={edit} addFunction={addFunction} />}
 
 
-       {selectedUser && <ModalEditUser   reLoad={fetch}  tipo={selectedUser} setSelectedId={setSelectedUser}/>}
+       {selectedUser.id != "-1" && <ModalEditUser   reLoad={fetch}  tipo={selectedUser} setSelectedId={setSelectedUser}/>}
       </section>
     </main>
   );

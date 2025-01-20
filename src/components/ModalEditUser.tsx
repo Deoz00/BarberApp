@@ -37,7 +37,7 @@ interface User {
   //  create: ( form:FormData) => void;
     reLoad: () => void;
     tipo: User;
-    setSelectedId: React.Dispatch<React.SetStateAction<User | null>>;
+    setSelectedId: React.Dispatch<React.SetStateAction<User>>;
   }
 
   export default function ModalEditUser({reLoad, tipo, setSelectedId }: props) {
@@ -96,7 +96,7 @@ interface User {
 
   const form = e.currentTarget as HTMLFormElement;
   const formData = new FormData(form);
-  if (typeof tipo === 'number') {
+  if (tipo.id === '') {
    
     await create(formData);
     
@@ -110,17 +110,16 @@ interface User {
 
 
   useEffect(() => {
-    if (tipo) {
-
+    console.log(tipo);
       onOpen();
       setOpenTriggered(true);
 
-    }
+    
   }, [tipo]);
 
     useEffect(() => {
       if (openTriggered && !isOpen) {
-        setSelectedId(null);
+        setSelectedId({id: "-1", name: "", userName: "", role: ""});	
   
         setOpenTriggered(false); // Resetear flag si es necesario
       }
@@ -149,7 +148,7 @@ interface User {
             <div className="flex h-full w-full  justify-center">
        <div className="flex w-full max-w-sm flex-col gap-4 rounded-large px-8 pb-10 pt-6">
         <p className="pb-4 text-left text-3xl font-semibold">
-        {typeof tipo === 'number' && tipo > 0 ? `Editar Usario` : "Crear Usuario"}
+        {tipo.id === "" ? "Crear Usuario" : "Editar Usario"}
         </p>
         <p className="text-sm text-danger min-h-[20px]">{loginLabel}</p>
 
@@ -178,7 +177,7 @@ interface User {
             defaultValue={tipo.name}
           />
           </div>
-          {typeof tipo === 'number' && <Input
+          {tipo.id === '' && <Input
             isRequired
             label="Contraseña"
             labelPlacement="outside"
@@ -188,7 +187,7 @@ interface User {
             variant="bordered"
           />}
           <Select className="max-w-xs" label="Selecciona un rol"
-              defaultSelectedKeys={[tipo.role]}
+              defaultSelectedKeys={[tipo.role.toLowerCase()]}
               name="role"
 >
         {rol.map((r) => (
